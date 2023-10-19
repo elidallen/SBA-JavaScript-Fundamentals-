@@ -48,8 +48,12 @@ function getLearnerData(course, ag, submissions) {
 
         const learner = learnerData[submission.learner_id];
 
-        // Calculate the weighted average for the learner.
-        const weightedAverage = calculateWeightedAverage(ag.assignments, submissions);
+        const learnerAssignments = ag.assignments.filter((assignment) => {
+            return submissions.some((sub) => sub.learner_id === learner.id && sub.assignment_id === assignment.id);
+        });
+
+        // Calculate the weighted average for the learner using only their assignments and submissions.
+        const weightedAverage = calculateWeightedAverage(learnerAssignments, submissions);
         learner.avg = weightedAverage;
 
         if (
@@ -68,9 +72,15 @@ function getLearnerData(course, ag, submissions) {
         }
     }
 
-    // Convert the learner data object into an array of objects.
-    const result = Object.values(learnerData);
-    console.log("Final Learner Data:", result);
+    // Convert the learner data object into an array of objects with the specified format.
+    const result = Object.values(learnerData).map((learner) => {
+        return {
+            id: learner.id,
+            avg: learner.avg,
+            ...learner,
+        };
+    });
+
     return result;
 }
 
